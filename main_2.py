@@ -11,6 +11,7 @@ import random
 import os 
 from time import sleep
 import ipdb
+import sys
 
 recognizer = sr.Recognizer()
 microphone = sr.Microphone()
@@ -18,7 +19,7 @@ microphone = sr.Microphone()
 engine = pyttsx3.init()
 engine.setProperty('volume', 3.0)
 
-WAKE = "cara"
+WAKE = "R2"
 
 CONVERSATION_LOG = "Conversation Log.txt"
 
@@ -195,6 +196,10 @@ class Shane:
             elif "quanto é" in command or "que dia é" in command:
                 self.what_is_checker(command)
 
+            elif "desligar" in command or "encerrar atividades" in command:
+                s.speak("Falou, falou. Até mais")
+                sys.exit()
+
             # Keep this at the end
             elif SEARCH_WORDS.get(command.split(' ')[0]) == command.split(' ')[0]:
                 self.use_search_words(command)
@@ -219,10 +224,10 @@ class Shane:
                     audio = recognizer.listen(source, timeout=100.0)
                     response = recognizer.recognize_google(audio)
 
-                    if response == WAKE:
+                    if response in WAKE:
                         greetings = ["Olá. Como posso te ajudar?", "Pois não", "ás suas ordens"]
                         greeting = random.choice(greetings)
-                        s.speak("iiiii aiiiii caaaaaaaraaaa")
+                        s.speak(greeting)
                         return response.lower()
 
                     else:
