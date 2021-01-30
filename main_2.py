@@ -18,7 +18,7 @@ microphone = sr.Microphone()
 engine = pyttsx3.init()
 engine.setProperty('volume', 3.0)
 
-WAKE = "R2"
+WAKE = "cara"
 
 CONVERSATION_LOG = "Conversation Log.txt"
 
@@ -176,7 +176,6 @@ class Shane:
 
             elif "se apresente" in command:
                 s.speak("Eu sou R2. Sou uma inteligencia artificial programada pra destru")
-                sleep(0.1)
                 s.speak("Quero dizer, para ajudar.")
                 
 
@@ -214,7 +213,7 @@ class Shane:
         while True:
             try:
                 with microphone as source:
-                    print("Ouvindo.")
+                    print("Diga ‘R2’ para iniciar")
                     recognizer.adjust_for_ambient_noise(source)
                     recognizer.dynamic_energy_threshold = 3000
                     audio = recognizer.listen(source, timeout=100.0)
@@ -223,7 +222,7 @@ class Shane:
                     if response == WAKE:
                         greetings = ["Olá. Como posso te ajudar?", "Pois não", "ás suas ordens"]
                         greeting = random.choice(greetings)
-                        s.speak(greeting)
+                        s.speak("iiiii aiiiii caaaaaaaraaaa")
                         return response.lower()
 
                     else:
