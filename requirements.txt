@@ -3,4 +3,5 @@ SpeechRecognition
 pyttsx3~=2.71
 pyserial
 pyowm
+pygame
 yfinance
