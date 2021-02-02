@@ -1,31 +1,39 @@
 # TARS
 **TARS -  Virtual Assistant**
 
-Para rodar é necessário possuir o pyhton 3.9 instalado e configurado nas variáveis de ambiente.
+Para rodar é necessário possuir o pyhton 3.6 instalado e configurado nas variáveis de ambiente.
+Recomendação de usar o Anaconda para construir um ambiente em python 3.6 sem necessidade de baixar e configurá-lo manualmente:
+https://www.anaconda.com/
+
+Usando o Anaconda, verificar se o mesmo está nas variáveis de ambiente.
 
 *Primeiro instalar o ambiente virtual:*
 
-    python -m venv "nome_do_ambiente"
+    conda create -n nome_ambiente python=3.6
 
 
-*Depois vamos acessar o ambiente:*
-**Windows**
+*Depois vamos ativar o ambiente:*
 
-    nome_do_ambiente\Scripts\activate
+    conda activate nome_ambiente
+    
+*Depois vamos instalar as dependências*
 
-**Linux e Mac**
+    pip install -r requeriments
 
-    source nome_do_ambiente\Scripts\activate
+*Caso apareça algum erro ao instalar o pyaudio*
 
+    pipwin install pyaudio
+    
+    
 Para executar, rodar o comando:
 
-    python main_2.py
+    python core.py
 
-Obs: Por enquanto é necessário iniciar o assistente com o comando "**R2**", pois "**TARS**" ainda não está sendo identificado corretamente.
+Obs: Por enquanto é necessário iniciar o assistente com o comando "**Awake**", pois "**TARS**" ainda não está sendo identificado corretamente.
 
 ## Legenda console:
 
- - **Diga ‘R2’ para iniciar** - Aguardando você falar R2, senão nenhum ação será realizada
+ - **Diga ‘awake’ para iniciar** - Aguardando você falar awake, senão nenhum ação será realizada
  - **Aguardando comandos** - Assistente foi ativado e aguarda suas ordens.
 
 
