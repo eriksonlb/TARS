@@ -13,6 +13,7 @@ from time import sleep
 import ipdb
 import sys
 from sound import speak_sound
+from brain import conversation
 
 recognizer = sr.Recognizer()
 microphone = sr.Microphone()
@@ -20,7 +21,7 @@ microphone = sr.Microphone()
 engine = pyttsx3.init()
 engine.setProperty('volume', 3.0)
 
-WAKE = "Wake"
+WAKE = "wake"
 
 CONVERSATION_LOG = "Conversation Log.txt"
 
@@ -39,7 +40,7 @@ class Shane:
                 speak_sound()
                 print("Aguardando comando.")
                 recognizer.adjust_for_ambient_noise(source)
-                recognizer.dynamic_energy_threshold = 3000
+                recognizer.dynamic_energy_threshold = 1000
                 audio = recognizer.listen(source, timeout=45.0)
                 command = recognizer.recognize_google(audio)
                 s.remember(command)
@@ -170,10 +171,10 @@ class Shane:
         webbrowser.open("https://www.google.com/search?q={}".format(command))
 
     # Analyzes the command
-    def analyze(self, command):
+    def analyze(self, command, trated_response):
         try:
             if len(command) > 0:
-                print(f"Você disse: {command}")
+                print(f"Falou nada")
             if command.startswith('abrir'):
                 self.open_things(command)
 
@@ -222,7 +223,7 @@ class Shane:
                 with microphone as source:
                     print("Diga 'Wake' para iniciar")
                     recognizer.adjust_for_ambient_noise(source)
-                    recognizer.dynamic_energy_threshold = 3000
+                    recognizer.dynamic_energy_threshold = 1000
                     audio = recognizer.listen(source, timeout=100.0)
                     response = recognizer.recognize_google(audio)
 
@@ -254,5 +255,7 @@ while True:
         previous_command = ""
         response = s.listen(recognizer, microphone)
         command = s.hear(recognizer, microphone, response)
-    s.analyze(command)
+    answer = conversation(command)  
+    ipdb.set_trace()
+    s.analyze(command, answer)
     previous_response = command
