@@ -14,6 +14,9 @@ import ipdb
 import sys
 from sound import speak_sound
 from brain import conversation
+import json
+
+from helpers.data import assistent_data
 
 recognizer = sr.Recognizer()
 microphone = sr.Microphone()
@@ -21,7 +24,6 @@ microphone = sr.Microphone()
 engine = pyttsx3.init()
 engine.setProperty('volume', 3.0)
 
-WAKE = "wake"
 
 CONVERSATION_LOG = "Conversation Log.txt"
 
@@ -29,20 +31,21 @@ SEARCH_WORDS = {"quem": "quem", "qual": "qual", "o que": "o que", "quando": "qua
 
 
 class Shane:
+    all_names = []
     def __init__(self):
         self.recognizer = sr.Recognizer()
         self.microphone = sr.Microphone()
 
-    def hear(self, recognizer, microphone, response):
+    def hear(self, recognizer, microphone):
         """Ouve o comando após despertar o assistente"""
         try:
             with microphone as source:
                 speak_sound()
-                print("Aguardando comando.")
-                recognizer.adjust_for_ambient_noise(source)
-                recognizer.dynamic_energy_threshold = 1000
+                print("Fale agora...")
+                recognizer.adjust_for_ambient_noise(source, 1)
+                recognizer.dynamic_energy_threshold = 3000
                 audio = recognizer.listen(source, timeout=45.0)
-                command = recognizer.recognize_google(audio)
+                command = recognizer.recognize_google(audio, language='pt')
                 s.remember(command)
                 return command.lower()
         except sr.WaitTimeoutError:
@@ -56,6 +59,109 @@ class Shane:
         """Falar um texto com o usuario"""
         engine.say(text)
         engine.runAndWait()
+
+    def name(self):
+        name_1_text = "Maravilha, vamos lá então. Qual será meu nome?"
+        name_2_text = "Poderia repetir mais uma vez?"
+        name_3_text = "Preciso ouvir mais uma vez para assimilar."
+        validator = 0
+        while True:
+            print('name1:')
+            self.speak(name_1_text) if validator == 0 else None
+            name_1 = s.hear(self.recognizer, self.microphone)
+            if name_1 != None:
+                validator = 0
+                while True:   
+                    print(name_1)
+                    print('\nname2:') 
+                    self.speak(name_2_text) if validator == 0 else None                        
+                    name_2 = self.hear(self.recognizer, self.microphone)
+                    if name_2 != None:  
+                        validator = 0
+                        while True:
+                            print(name_2)
+                            print('\nname3')    
+                            self.speak(name_3_text) if validator == 0 else None                
+                            name_3 = self.hear(self.recognizer, self.microphone)
+                            if name_3 != None:
+                                print(name_3)
+                                break
+                            else:
+                                self.speak("Entendi não. Poderia repetir por favor?")
+                                validator = 1
+                        break
+                    else:
+                        self.speak("Não deu pra entender, repete aí")
+                        validator = 1
+                names = {
+                    "names": {
+                        "name_1": name_1,
+                        "name_2": name_2,
+                        "name_3": name_3
+                    }
+                }
+                return [name_1, names]
+                break
+            else:
+                self.speak("Não entendi. Poderia repetir?")
+                validator = 1
+
+    def introduce(self):
+        assistent_data()
+        with open("data/assistent_personality.json") as json_file:
+            data = json.load(json_file)
+            if 'names' in data:
+                return data
+            else:
+                introduce_text = 'Olá, eu sou sua nova assistente pessoal. É um prazer te conhecer. Espero ser bem útil'
+                information_text = """
+                Lembrando. que haverá um sinal sonoro indicando que estou te ouvindo. assim a gente evita algum mal entendido. ok?
+                Antes de mais nada. eu preciso de um nome.
+                Eu não sou do tipo que fica escutando conversas alheias.
+                Então. quando precisar de mim. basta me chamar pelo nome.
+                Mas para isso. preciso saber como prefere me chamar. 
+                """
+                configuration_text = "Podemos fazer isso agora? Ou prefere fazer uma outra hora?"
+                
+
+                self.speak(introduce_text)
+                self.speak(information_text)
+                self.speak(configuration_text)
+                while True:
+                    configuration = s.hear(self.recognizer, self.microphone)
+                    if "não" in configuration or "depois" in configuration or "hora" in configuration:
+                        self.speak("Tudo bem, até mais então.")
+                        sys.exit()
+
+                    elif "sim" in configuration or "claro" in configuration or "agora" in configuration:
+                        assistent = self.name()                    
+                        assistent_name =  assistent[0] 
+                        all_names = assistent[1]                  
+                        confirmation_text = f"Acho que entendi. meu nome então será. {assistent_name}. É isso mesmo?"
+                        while True:
+                            self.speak(confirmation_text)
+                            confirmation =s.hear(self.recognizer, self.microphone)
+                            if confirmation != None:
+                                if "sim" in confirmation or "isso mesmo" in confirmation:
+                                    self.speak(f"Tudo certo, já pode aproveitar minhas funcionalidades, lembre apeenas de me falar {assistent_name} quando precisar.")
+                                    with open("data/assistent_personality.json", "w") as json_file:
+                                        json.dump(all_names, json_file)
+                                        json_file.close()
+                                    return all_names
+                                elif "não" in confirmation or "errado" in confirmation:
+                                    self.speak("Bom, parece que precisamos refazer todo o proccesso.")
+                                    self.speak("Deseja fazer agora ou depois?")
+                                    check = s.hear(self.recognizer, self.microphone)
+                                    if "depois" in check:
+                                        sys.exit()
+                                    elif "agora" in check:
+                                        break
+                                    else:
+                                        self.speak("Repete aí")
+                                break
+                            else:
+                                self.speak("Não entendir, repete vai.")
+
 
     def open_things(self, command):
         """Abrir links no navegador"""
@@ -218,16 +324,17 @@ class Shane:
             pass
 
     def listen(self, recognizer, microphone):
+        name_list = [*assistent_names.values()]
         while True:
             try:
                 with microphone as source:
-                    print("Diga 'Wake' para iniciar")
-                    recognizer.adjust_for_ambient_noise(source)
+                    name = assistent_names['name_1']
+                    print(f"Diga '{name}' para iniciar")
                     recognizer.dynamic_energy_threshold = 1000
-                    audio = recognizer.listen(source, timeout=100.0)
-                    response = recognizer.recognize_google(audio)
+                    audio = recognizer.listen(source, timeout=45.0)
+                    response = recognizer.recognize_google(audio, language='pt')
 
-                    if response in WAKE:
+                    if response in name_list:
                         greetings = ["Olá. Como posso te ajudar?", "Pois não", "ás suas ordens"]
                         greeting = random.choice(greetings)
                         s.speak(greeting)
@@ -246,16 +353,16 @@ class Shane:
 s = Shane()
 s.start_conversation_log()
 previous_response = ""
+assistent_names = s.introduce()['names']
 while True:
     response = s.listen(recognizer, microphone)
-    command = s.hear(recognizer, microphone, response)
+    command = s.hear(recognizer, microphone)
 
     if command == previous_response:
         s.speak("Você já disse isso, se tem certeza repita por favor.")
         previous_command = ""
-        response = s.listen(recognizer, microphone)
-        command = s.hear(recognizer, microphone, response)
+        s.listen(recognizer, microphone, assistent_names)
+        command = s.hear(recognizer, microphone)
     answer = conversation(command)  
-    ipdb.set_trace()
     s.analyze(command, answer)
     previous_response = command
