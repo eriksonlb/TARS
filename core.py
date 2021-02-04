@@ -162,23 +162,6 @@ class Shane:
                             else:
                                 self.speak("Não entendir, repete vai.")
 
-
-    def open_things(self, command):
-        """Abrir links no navegador"""
-        if command == "abrir youtube":
-            s.speak("OK. Alexa abra o YouTube.")
-            webbrowser.open("https://www.youtube.com")
-            pass
-
-        elif command == "abrir facebook":
-            s.speak("Só um segundinho")
-            webbrowser.open("https://www.facebook.com")
-            pass
-
-        else:
-            s.speak("Não aprendi a fazer isso ainda")
-            pass
-
     # Used to track the date of the conversation, may need to add the time in the future
     def start_conversation_log(self):
         today = str(date.today())
@@ -192,38 +175,12 @@ class Shane:
             f.write("User: " + command + "\n")
 
     # Used to answer time/date questions
-    def understand_time(self, command):
+    def get_time(self):
         today = date.today()
         now = datetime.now()
         fuso_horario = timezone('America/Sao_Paulo')
+        return {'hoje': today, 'agora': now, 'fuso': fuso_horario}
 
-        if "hoje" in command:
-            s.speak("Hoje é " + today.strftime("%B") + " " + today.strftime("%d") + ", " + today.strftime("%Y"))
-
-        elif command == "que horas são":
-            period = " da noite" if now.strftime("%p") == "PM" else ""
-            s.speak(f"Agora são {now.strftime('%I')} horas. E {now.strftime('%M')} minutos {period}")
-
-        elif "ontem" in command:
-            date_intent = today - timedelta(days=1)
-            return date_intent
-
-        elif "ano passado" in command:
-            current_year = today.year
-
-            if current_year % 4 == 0:
-                days_in_current_year = 366
-
-            else:
-                days_in_current_year = 365
-            date_intent = today - timedelta(days=days_in_current_year)
-            return date_intent
-
-        elif "ultima semana" in command:
-            date_intent = today - timedelta(days=7)
-            return date_intent
-        else:
-            pass
 
     def get_weather(self, command):
         home = 'Campinas, São Paulo'
@@ -277,20 +234,84 @@ class Shane:
         webbrowser.open("https://www.google.com/search?q={}".format(command))
 
     # Analyzes the command
-    def analyze(self, command, trated_response):
+    def analyze(self, response_data):
+        tag = response_data['tag']
+        response = response_data['response']
         try:
-            if len(command) > 0:
-                print(f"Falou nada")
-            if command.startswith('abrir'):
-                self.open_things(command)
+            if tag == "facebook":
+                s.speak(random.choice(response))
+                webbrowser.open("https://www.facebook.com")
+            
 
-            elif "se apresente" in command:
-                s.speak("Eu sou Wake. Sou uma inteligencia artificial programada pra destru")
-                s.speak("Quero dizer, para ajudar.")
+            elif tag == "youtube":
+                s.speak(random.choice(response))
+                webbrowser.open("https://www.youtube.com")
+
+            elif tag == "apresentacao":
+                s.speak(random.choice(response))
                 
 
-            elif "horas são" in command:
-                self.understand_time(command)
+            elif tag == "horas" or tag == "hoje" or tag == "ontem" or tag == "amanhã":
+                mounths = {
+                    "january": "janeiro",
+                    "february": "fevereiro",
+                    "march": "março",
+                    "april": "abril",
+                    "may": "maio",
+                    "june": "junho",
+                    "july": "julho",
+                    "august": "agosto",
+                    "september": "setembro",
+                    "october": "outubro",
+                    "november": "novembro",
+                    "december": "dezembro"
+                }
+                days = {
+                    "monday": "segunda",
+                    "tuesday": "terça",
+                    "wednesday": "quarta",
+                    "thursday": "quinta",
+                    "friday": "sexta",
+                    "saturday": "sabádo",
+                    "sunday": "domingo"
+                }
+
+                time_info = self.get_time()
+                today = time_info['hoje']
+                now = time_info['agora']
+
+                if tag == "horas":
+                    period = " da noite" if now.strftime("%p") == "PM" else ""
+                    s.speak(response.format(now.strftime('%I'), now.strftime('%M'), period))
+
+                elif tag == "hoje":
+                    mounth = mounths[(today.strftime("%B")).lower()]
+                    day = days[(today.strftime("%A")).lower()]
+                    s.speak(response.format(day, int(today.strftime("%d")), mounth))
+                elif tag == "ontem":
+                    yesterday = today - timedelta(days=1)
+                    mounth = mounths[(yesterday.strftime("%B")).lower()]
+                    day = days[(yesterday.strftime("%A")).lower()]
+                    s.speak(response.format(day, int(yesterday.strftime("%d")), mounth))
+
+                elif tag == "amanhã":
+                    tomorrow = today + timedelta(days=1)
+                    mounth = mounths[(tomorrow.strftime("%B")).lower()]
+                    day = days[(tomorrow.strftime("%A")).lower()]
+                    s.speak(response.format(day, int(tomorrow.strftime("%d")), mounth))
+
+                elif tag == "ano":
+                    current_year = today.year
+
+                    if current_year % 4 == 0:
+                        days_in_current_year = 366
+
+                    else:
+                        days_in_current_year = 365
+                    date_intent = today - timedelta(days=days_in_current_year)
+
+
+            ###########################################################
 
             elif "ligue o" in command or "ligue a" in command or "acenda as" in command:
                 s.speak("Você já comprou alguma dessas coisas pelo menos?")
@@ -330,11 +351,12 @@ class Shane:
                 with microphone as source:
                     name = assistent_names['name_1']
                     print(f"Diga '{name}' para iniciar")
-                    recognizer.dynamic_energy_threshold = 1000
+                    recognizer.adjust_for_ambient_noise(source,duration=5)
+                    recognizer.dynamic_energy_threshold = True
                     audio = recognizer.listen(source, timeout=45.0)
                     response = recognizer.recognize_google(audio, language='pt')
 
-                    if response in name_list:
+                    if response.lower() in name_list:
                         greetings = ["Olá. Como posso te ajudar?", "Pois não", "ás suas ordens"]
                         greeting = random.choice(greetings)
                         s.speak(greeting)
@@ -357,12 +379,13 @@ assistent_names = s.introduce()['names']
 while True:
     response = s.listen(recognizer, microphone)
     command = s.hear(recognizer, microphone)
+    # command = 'que dia foi ontem'
 
     if command == previous_response:
         s.speak("Você já disse isso, se tem certeza repita por favor.")
         previous_command = ""
-        s.listen(recognizer, microphone, assistent_names)
+        s.listen(recognizer, microphone)
         command = s.hear(recognizer, microphone)
     answer = conversation(command)  
-    s.analyze(command, answer)
+    s.analyze(answer)
     previous_response = command
