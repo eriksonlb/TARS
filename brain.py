@@ -4,25 +4,31 @@ from tensorflow.python.framework import ops
 stemmer = LancasterStemmer()
 
 import numpy
+# -*- coding: utf-8 -*-
 import tflearn
 import tensorflow
 import random
 import json
 import pickle
 import ipdb
+import pyttsx3
 
+engine = pyttsx3.init()
+engine.setProperty('volume', 3.0)
 
-with open("data/intents.json") as file:
+with open("data/intents.json", 'r', encoding='utf8') as file:
     data = json.load(file)
 
 try:
-    with open("data/data.pickle", "rb") as f:
+    with open("data/training/data.pickle", "rb") as f:
         words, labels, training, output = pickle.load()
 except:
     words = []
     labels = []
     docs_x = []
     docs_y = []
+
+    engine.say("Parece que preciso dar uma estudada nas novas conversas que foram atualizadas recentemente, só um momento")
 
     for intent in data["intents"]:
         for pattern in intent["patterns"]:
@@ -65,8 +71,9 @@ except:
     training = numpy.array(training)
     output = numpy.array(output)
 
-    with open("data/data.pickle", "wb") as f:
+    with open("data/training/data.pickle", "wb") as f:
         pickle.dump((words, labels, training, output), f)
+    engine.say('Conteúdo assimilado, podemos continuar')
 
 ops.reset_default_graph()
 
@@ -79,12 +86,12 @@ net = tflearn.regression(net)
 model = tflearn.DNN(net)
 
 try:
-    model_file = open("data/model.tflearn.index")
+    model_file = open("data/training/model.tflearn.index")
     model_file.close()
-    model.load("data/model.tflearn")
+    model.load("data/training/model.tflearn")
 except FileNotFoundError:
     model.fit(training, output, n_epoch=1000, batch_size=8, show_metric=True)
-    model.save("data/model.tflearn")
+    model.save("data/training/model.tflearn")
 
 def bag_of_words(s, words):
     bag = [0 for _ in range(len(words))]
@@ -112,4 +119,5 @@ def conversation(text):
         "tag": tag}
     else: 
         responses = ['não entendi o que você disse', 'isso não me diz nada', 'sinceramente?. Não entendi']
-        return random.choice(responses)
+        return {"response": random.choice(responses),
+        "tag": "não entendeu"}
