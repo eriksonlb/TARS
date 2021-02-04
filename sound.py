@@ -1,9 +1,7 @@
-import pygame
+from playsound import playsound
 import ipdb
 from time import sleep
 
 def speak_sound():
-    pygame.init()
-    sound = pygame.mixer.music.load('src\ok.mp3')
-    pygame.mixer.music.play()
+    playsound('src\ok.mp3')
     sleep(0.3)
