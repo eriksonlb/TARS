@@ -225,12 +225,7 @@ class Shane:
 
         if li[0] in number_list:
             self.do_math(li)
-
-        elif "que dia é hoje" in command:
-            self.understand_time(command)
-
-        else:
-            self.use_search_words(command)
+            
 
     # Checks the first word in the command to determine if it's a search word
     def use_search_words(self, command):
@@ -238,7 +233,7 @@ class Shane:
         webbrowser.open("https://www.google.com/search?q={}".format(command))
 
     # Analyzes the command
-    def analyze(self, response_data):
+    def analyze(self, response_data, command):
         tag = response_data['tag']
         response = response_data['response']
         try:
@@ -255,7 +250,7 @@ class Shane:
                 s.speak(random.choice(response))
                 
 
-            elif tag == "horas" or tag == "hoje" or tag == "ontem" or tag == "amanhã":
+            elif tag == "horas" or tag == "hoje" or tag == "ontem" or tag == "amanhã" or tag == "ano":
                 mounths = {
                     "january": "janeiro",
                     "february": "fevereiro",
@@ -283,7 +278,6 @@ class Shane:
                 time_info = self.get_time()
                 today = time_info['hoje']
                 now = time_info['agora']
-
                 if tag == "horas":
                     period = " da noite" if now.strftime("%p") == "PM" else ""
                     s.speak(response.format(now.strftime('%I'), now.strftime('%M'), period))
@@ -306,6 +300,7 @@ class Shane:
 
                 elif tag == "ano":
                     current_year = today.year
+                    s.speak(response.format(current_year))
 
                     if current_year % 4 == 0:
                         days_in_current_year = 366
@@ -317,24 +312,21 @@ class Shane:
 
             ###########################################################
 
-            elif "ligue o" in command or "ligue a" in command or "acenda as" in command:
+            elif tag == "smart":
                 s.speak("Você já comprou alguma dessas coisas pelo menos?")
 
-            elif "como você está" in command:
+            elif tag == "emoções":
                 current_feelings = ["Estou bem", "Vou bem. Obrigada.", "Na verdade um pouco entediada, mas bem."]
                 greeting = random.choice(current_feelings)
                 s.speak(greeting)
-            elif "clima" in command:
-                self.get_weather(command)
 
-            elif "quanto é" in command or "que dia é" in command:
+            elif "quanto é" in command:
                 self.what_is_checker(command)
 
             elif "desligar" in command or "encerrar atividades" in command:
                 s.speak("Falou, falou. Até mais")
                 sys.exit()
-
-            # Keep this at the end
+                
             elif SEARCH_WORDS.get(command.split(' ')[0]) == command.split(' ')[0]:
                 self.use_search_words(command)
 
@@ -348,13 +340,15 @@ class Shane:
             print("Warning:Erro de Attribute Error.")
             pass
 
+
+
     def listen(self, recognizer, microphone):
         name_list = [*assistent_names.values()]
         while True:
             try:
                 with microphone as source:
                     name = assistent_names['name_1']
-                    print(f"Diga '{name}' para iniciar")                    
+                    print(f"\n\n\nDiga '{name}' para iniciar")                    
                     recognizer.dynamic_energy_threshold = True
                     audio = recognizer.listen(source, timeout=45.0)
                     response = recognizer.recognize_google(audio, language='pt')
@@ -375,20 +369,42 @@ class Shane:
                 print("Erro de conexão.")
 
 
+    def dialogue(self):
+        while True:
+            previous_response = ""
+            command = s.hear(recognizer, microphone)
+            # command = 'que dia foi ontem'
+
+            if command == previous_response:
+                s.speak("Você já disse isso, se tem certeza repita por favor.")
+                previous_command = ""
+                s.listen(recognizer, microphone)
+                command = s.hear(recognizer, microphone)
+            answer = conversation(command)  
+            s.analyze(answer, command)
+            previous_response = command
+            # asking = [
+            #     'precisa de mais alguma coisa?',
+            #     'certo, quê mais?',
+            #     'deseja mais algo?',
+            #     'mais alguma coisa?'
+
+            # ]
+            answer = [
+                'certo. qualquer coisa só chamar',
+                'precisando estou á disposição',
+                'qualquer coisa, é só falar',
+                'Tudo bem. estou sempre a disposição'
+            ]
+            # s.speak(random.choice(asking))
+            speak_sound()
+            response = s.hear(recognizer, microphone)
+            ipdb.set_trace()
+            if 'sair' in response:
+                s.speak(random.choice(answer))
 s = Shane()
 s.start_conversation_log()
-previous_response = ""
 assistent_names = s.introduce()['names']
 while True:
     response = s.listen(recognizer, microphone)
-    command = s.hear(recognizer, microphone)
-    # command = 'que dia foi ontem'
-
-    if command == previous_response:
-        s.speak("Você já disse isso, se tem certeza repita por favor.")
-        previous_command = ""
-        s.listen(recognizer, microphone)
-        command = s.hear(recognizer, microphone)
-    answer = conversation(command)  
-    s.analyze(answer)
-    previous_response = command
+    s.dialogue()
