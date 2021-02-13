@@ -28,7 +28,7 @@ except:
     docs_x = []
     docs_y = []
 
-    engine.say("Parece que preciso dar uma estudada nas novas conversas que foram atualizadas recentemente, só um momento")
+    
 
     for intent in data["intents"]:
         for pattern in intent["patterns"]:
@@ -73,7 +73,6 @@ except:
 
     with open("data/training/data.pickle", "wb") as f:
         pickle.dump((words, labels, training, output), f)
-    engine.say('Conteúdo assimilado, podemos continuar')
 
 ops.reset_default_graph()
 
