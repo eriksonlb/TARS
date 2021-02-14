@@ -89,7 +89,7 @@ try:
     model_file.close()
     model.load("data/training/model.tflearn")
 except FileNotFoundError:
-    model.fit(training, output, n_epoch=1000, batch_size=8, show_metric=True)
+    model.fit(training, output, n_epoch=2000, batch_size=8, show_metric=True)
     model.save("data/training/model.tflearn")
 
 def bag_of_words(s, words):
@@ -109,7 +109,7 @@ def conversation(text):
     results = model.predict([bag_of_words(text, words)])[0]
     results_index = numpy.argmax(results)
     tag = labels[results_index]
-    if results[results_index] > 0.7:
+    if results[results_index] > 0.5:
         for tg in data["intents"]:
             if tg['tag'] == tag:
                 responses = tg['responses']
