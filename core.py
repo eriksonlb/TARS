@@ -17,7 +17,9 @@ from brain import conversation
 import json
 
 from helpers.data import assistent_data
+from helpers import clean_dialogues
 from features.news import get_news
+from voice import reproduce
 
 recognizer = sr.Recognizer()
 microphone = sr.Microphone()
@@ -45,7 +47,7 @@ class Shane:
                     speak_sound()
                     print("Fale agora...")
                     recognizer.adjust_for_ambient_noise(source, 1)
-                    recognizer.dynamic_energy_threshold = 3000
+                    recognizer.dynamic_energy_threshold = True
                     audio = recognizer.listen(source, timeout=45.0)
                     command = recognizer.recognize_google(audio, language='pt')
                     s.remember(command)
@@ -59,8 +61,7 @@ class Shane:
 
     def speak(self, text):
         """Falar um texto com o usuario"""
-        engine.say(text)
-        engine.runAndWait()
+        reproduce(text)
 
     def name(self):
         name_1_text = "Maravilha, vamos lá então. Qual será meu nome?"
@@ -86,7 +87,6 @@ class Shane:
                             self.speak(name_3_text) if validator == 0 else None                
                             name_3 = self.hear(self.recognizer, self.microphone)
                             if name_3 != None:
-                                ipdb.set_trace()
                                 s.speak(name_3) if validator == 0 else None
                                 break
                             else:
@@ -240,16 +240,16 @@ class Shane:
         response = response_data['response']
         try:
             if tag == "facebook":
-                s.speak(random.choice(response))
+                s.speak(response)
                 webbrowser.open("https://www.facebook.com")
             
 
             elif tag == "youtube":
-                s.speak(random.choice(response))
+                s.speak(response)
                 webbrowser.open("https://www.youtube.com")
 
             elif tag == "apresentacao":
-                s.speak(random.choice(response))
+                s.speak(response)
                 
 
             elif tag == "horas" or tag == "hoje" or tag == "ontem" or tag == "amanhã" or tag == "ano":
@@ -345,7 +345,7 @@ class Shane:
 
             elif tag == "computador":
                 s.speak(response)
-                com = 'shutdown –s –t -f 0'
+                com = 'shutdown -s'
                 os.system(com)
 
         except TypeError:
@@ -410,6 +410,8 @@ class Shane:
                 s.speak(random.choice(answer))
                 dial = False
                 break
+
+clean_dialogues
 s = Shane()
 start_sound()
 s.start_conversation_log()
@@ -417,3 +419,4 @@ assistent_names = s.introduce()['names']
 while True:
     response = s.listen(recognizer, microphone)
     s.dialogue()
+clean_dialogues
