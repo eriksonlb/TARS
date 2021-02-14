@@ -12,11 +12,12 @@ import os
 from time import sleep
 import ipdb
 import sys
-from sound import speak_sound
+from sound import *
 from brain import conversation
 import json
 
 from helpers.data import assistent_data
+from features.news import get_news
 
 recognizer = sr.Recognizer()
 microphone = sr.Microphone()
@@ -38,22 +39,23 @@ class Shane:
 
     def hear(self, recognizer, microphone):
         """Ouve o comando após despertar o assistente"""
-        try:
-            with microphone as source:
-                speak_sound()
-                print("Fale agora...")
-                recognizer.adjust_for_ambient_noise(source, 1)
-                recognizer.dynamic_energy_threshold = 3000
-                audio = recognizer.listen(source, timeout=45.0)
-                command = recognizer.recognize_google(audio, language='pt')
-                s.remember(command)
-                return command.lower()
-        except sr.WaitTimeoutError:
-            pass
-        except sr.UnknownValueError:
-            pass
-        except sr.RequestError:
-            print("Erro de internet")
+        while True:
+            try:
+                with microphone as source:
+                    speak_sound()
+                    print("Fale agora...")
+                    recognizer.adjust_for_ambient_noise(source, 1)
+                    recognizer.dynamic_energy_threshold = 3000
+                    audio = recognizer.listen(source, timeout=45.0)
+                    command = recognizer.recognize_google(audio, language='pt')
+                    s.remember(command)
+                    return command.lower()
+            except sr.WaitTimeoutError:
+                pass
+            except sr.UnknownValueError:
+                pass
+            except sr.RequestError:
+                print("Erro de internet")
 
     def speak(self, text):
         """Falar um texto com o usuario"""
@@ -316,22 +318,35 @@ class Shane:
                 s.speak("Você já comprou alguma dessas coisas pelo menos?")
 
             elif tag == "emoções":
-                current_feelings = ["Estou bem", "Vou bem. Obrigada.", "Na verdade um pouco entediada, mas bem."]
-                greeting = random.choice(current_feelings)
-                s.speak(greeting)
+                s.speak(response)
+
+            elif tag == "apresentacao":
+                s.speak(response)
 
             elif "quanto é" in command:
                 self.what_is_checker(command)
 
-            elif "desligar" in command or "encerrar atividades" in command:
-                s.speak("Falou, falou. Até mais")
+            elif tag == "notícias":
+                news = get_news('campinas')
+                s.speak(response)
+                for n in news:
+                    sleep(1)
+                    s.speak(n)
+            elif tag == "despedida":
+                s.speak(response)
+                end_sound()
                 sys.exit()
                 
             elif SEARCH_WORDS.get(command.split(' ')[0]) == command.split(' ')[0]:
                 self.use_search_words(command)
 
-            else:
-                s.speak("Eu não sou tão esperta assim ainda")
+            elif tag == "não entendeu" and "sair" not in command:
+                s.speak(response)
+
+            elif tag == "computador":
+                s.speak(response)
+                com = 'shutdown –s –t -f 0'
+                os.system(com)
 
         except TypeError:
             print("Warning: Erro de TypeError")
@@ -349,7 +364,7 @@ class Shane:
                 with microphone as source:
                     name = assistent_names['name_1']
                     print(f"\n\n\nDiga '{name}' para iniciar")                    
-                    recognizer.dynamic_energy_threshold = True
+                    recognizer.dynamic_energy_threshold = 2900
                     audio = recognizer.listen(source, timeout=45.0)
                     response = recognizer.recognize_google(audio, language='pt')
                     for name in name_list:
@@ -370,16 +385,11 @@ class Shane:
 
 
     def dialogue(self):
-        while True:
+        dial = True
+        while dial:
             previous_response = ""
             command = s.hear(recognizer, microphone)
             # command = 'que dia foi ontem'
-
-            if command == previous_response:
-                s.speak("Você já disse isso, se tem certeza repita por favor.")
-                previous_command = ""
-                s.listen(recognizer, microphone)
-                command = s.hear(recognizer, microphone)
             answer = conversation(command)  
             s.analyze(answer, command)
             previous_response = command
@@ -396,13 +406,12 @@ class Shane:
                 'qualquer coisa, é só falar',
                 'Tudo bem. estou sempre a disposição'
             ]
-            # s.speak(random.choice(asking))
-            speak_sound()
-            response = s.hear(recognizer, microphone)
-            ipdb.set_trace()
-            if 'sair' in response:
+            if 'sair' in command:
                 s.speak(random.choice(answer))
+                dial = False
+                break
 s = Shane()
+start_sound()
 s.start_conversation_log()
 assistent_names = s.introduce()['names']
 while True:
