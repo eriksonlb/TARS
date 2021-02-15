@@ -14,12 +14,12 @@ import ipdb
 import sys
 from sound import *
 import json
+from google_trans_new import google_translator
 
 from helpers.data import assistent_data
 from helpers import clean_dialogues
 from features.news import get_news
 from voice import reproduce
-from brain import conversation
 from frontal import get_response
 
 recognizer = sr.Recognizer()
@@ -189,20 +189,19 @@ class Shane:
         return {'hoje': today, 'agora': now, 'fuso': fuso_horario}
 
 
-    def get_weather(self, command):
+    def get_weather(self):
+        translator = google_translator()
+
         home = 'Campinas, São Paulo'
         owm = pyowm.OWM(OPENWEATHER)
-        mgr = owm.weather_manager()
+        observation = owm.weather_at_place(home)
+        detail = observation.get_weather()
+        temp = detail.get_temperature('celsius')
+        temp = int(temp['temp'])
+        status = detail.get_detailed_status()
+        status = translator.translate(status, lang_tgt="pt")
 
-        if "agora" in command:
-            observation = mgr.weather_at_place(home)
-            w = observation.weather
-            temp = w.temperature('celsius')
-            status = w.detailed_status
-            s.speak("Agora está com " + str(int(temp['temp'])) + " graus e " + status)
-
-        else:
-            print("Não estou programada para isso.")
+        return [temp, status]
 
     # If we're doing math, this will return the operand to do math with
     def get_operator(self, op):
@@ -320,6 +319,10 @@ class Shane:
 
             elif tag == "emoções":
                 s.speak(response)
+            
+            elif tag == "clima":
+                clima = self.get_weather()
+                s.speak(response.format(clima[0], clima[1]))
 
             elif tag == "apresentacao":
                 s.speak(response)
@@ -415,10 +418,12 @@ class Shane:
 
 clean_dialogues
 s = Shane()
-start_sound()
-s.start_conversation_log()
-assistent_names = s.introduce()['names']
-while True:
-    response = s.listen(recognizer, microphone)
-    s.dialogue()
-clean_dialogues
+weather = s.get_weather()
+ipdb.set_trace()
+# start_sound()
+# s.start_conversation_log()
+# assistent_names = s.introduce()['names']
+# while True:
+#     response = s.listen(recognizer, microphone)
+#     s.dialogue()
+# clean_dialogues
