@@ -13,13 +13,14 @@ from time import sleep
 import ipdb
 import sys
 from sound import *
-from brain import conversation
 import json
 
 from helpers.data import assistent_data
 from helpers import clean_dialogues
 from features.news import get_news
 from voice import reproduce
+from brain import conversation
+from frontal import get_response
 
 recognizer = sr.Recognizer()
 microphone = sr.Microphone()
@@ -365,7 +366,7 @@ class Shane:
                     name = assistent_names['name_1']
                     print(f"\n\n\nDiga '{name}' para iniciar")                    
                     recognizer.dynamic_energy_threshold = 2900
-                    audio = recognizer.listen(source, timeout=45.0)
+                    audio = recognizer.listen(source, timeout=10.0)
                     response = recognizer.recognize_google(audio, language='pt')
                     for name in name_list:
                         if name in response.lower():
@@ -390,7 +391,8 @@ class Shane:
             previous_response = ""
             command = s.hear(recognizer, microphone)
             # command = 'que dia foi ontem'
-            answer = conversation(command)  
+            # answer = conversation(command)  
+            answer = get_response(command)
             s.analyze(answer, command)
             previous_response = command
             # asking = [
