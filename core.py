@@ -128,8 +128,8 @@ class Shane:
                 configuration_text = "Podemos fazer isso agora? Ou prefere fazer uma outra hora?"
                 
 
-                # s.speak(introduce_text)
-                # s.speak(information_text)
+                s.speak(introduce_text)
+                s.speak(information_text)
                 s.speak(configuration_text)
                 while True:
                     try:
@@ -167,7 +167,8 @@ class Shane:
                                 else:
                                     self.speak("Não entendir, repete vai.")
                     except:
-                        s.speak("Falou algo?")    
+                        # s.speak("Falou algo?")    
+                        pass
 
     # Used to track the date of the conversation, may need to add the time in the future
     def start_conversation_log(self):
