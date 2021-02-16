@@ -327,6 +327,9 @@ class Shane:
             elif tag == "apresentacao":
                 s.speak(response)
 
+            elif tag == "parabéns":
+                s.speak(response)
+
             elif "quanto é" in command:
                 self.what_is_checker(command)
 
@@ -418,12 +421,10 @@ class Shane:
 
 clean_dialogues
 s = Shane()
-weather = s.get_weather()
-ipdb.set_trace()
-# start_sound()
-# s.start_conversation_log()
-# assistent_names = s.introduce()['names']
-# while True:
-#     response = s.listen(recognizer, microphone)
-#     s.dialogue()
-# clean_dialogues
+start_sound()
+s.start_conversation_log()
+assistent_names = s.introduce()['names']
+while True:
+    response = s.listen(recognizer, microphone)
+    s.dialogue()
+clean_dialogues
