@@ -31,6 +31,11 @@ def get_response(text):
                     max_acc = accuracy
                     response_tag = tag
                     response = intent['responses']
-        ipdb.sset_trace()
-        return {"response": random.choice(response),
-                "tag": response_tag}
+        print(text)
+        if max_acc > 41:
+            return {"response": random.choice(response),
+                    "tag": response_tag}
+        else:
+            responses = ['não entendi o que você disse', 'isso não me diz nada', 'sinceramente?. Não entendi']
+            return {"response": random.choice(responses),
+                    "tag": "não entendeu"}
