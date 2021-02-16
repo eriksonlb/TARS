@@ -15,8 +15,8 @@ def remover_acentos(frase):
 
 def reproduce(text):
     fixed_text = remover_acentos(text)
-    if os.path.isfile(f"{fixed_text}.mp3"):
-        playsound(f".\src\dialogue\{fixed_text}.mp3")
+    if os.path.isfile(f"src\dialogue\{fixed_text}.mp3"):
+        playsound(f"src\dialogue\{fixed_text}.mp3")
     else:
         set_audio = gTTS(text=text, lang='pt', slow=False)
         path = f"src\\dialogue\\{fixed_text}.mp3"
