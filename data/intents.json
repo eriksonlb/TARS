@@ -1,23 +1,17 @@
 {"intents": [
-    {"tag": "saudações",
-     "patterns": ["Olá wake", "e ai wake", "acorde wake", "wake despertar", "wake ativar"],
-     "responses": ["Eu sou Wake. Sou uma inteligencia artificial programada pra destru, ajudar",
-         "uma nova solução triste pra gente preguiçosa", "Acho que você não conseguiria entender se eu explicasse"],
-     "context_set": ""
-    },
     {"tag": "despedida",
      "patterns": ["desligar", "vá dormir", "encerrar atividades"],
-     "responses": ["pra quem fica, tchau", "adeus mundo cruel", "ahh finalmente. fui"],
+     "responses": ["pra quem fica, tchau", "adeus mundo cruel", "ahh. finalmente. fui"],
      "context_set": ""
     },
     {"tag": "apresentacao",
      "patterns": ["quem é você", "fale sobre você", "se apresente"],
-     "responses": ["Eu sou Wake. Sou uma inteligencia artificial programada pra destru, ajudar",
+     "responses": ["Eu sou Lídia. Sou uma inteligencia artificial programada pra destru, ajudar",
          "uma nova solução triste pra gente preguiçosa", "Acho que você não conseguiria entender se eu explicasse"],
      "context_set": ""
     },
     {"tag": "clima",
-     "patterns": ["clima de hoje", "temperatura atual", "quantos graus ta fazendo"],
+     "patterns": ["qual o clima de hoje", "qual é a temperatura atual", "quantos graus ta fazendo"],
      "responses": ["Agora está com {} graus e {}"]
     },
     {"tag": "hoje",
@@ -36,6 +30,10 @@
      "patterns": ["que horas são", "qual o horário de agora", "que hora que é?" ],
      "responses": ["Agora são {} horas e {} minutos{}", "Ah sim, {} e {}{}"]
     },
+    {"tag": "ano",
+     "patterns": ["que ano estamos", "qual ano atual", "que ano é esse" ],
+     "responses": ["Estamos no ano de {}", "Estamos em {}"]
+    },
     {"tag": "facebook",
      "patterns": ["abrir facebook", "entrar no facebook", "logar no face", "acessa o face" ],
      "responses": ["Nada de importante pra fazer? tudo bem. Abrindo facebook", "Abrindo facebook"]
@@ -43,6 +41,22 @@
     {"tag": "youtube",
      "patterns": ["abrir youtube", "acessar o youtube", "abra o youtube", "acesse o youtube"],
      "responses": ["claro! abrindo o youtube em 3, 2, 1", "é pra já, um youtube saindo"]
+    },
+    {"tag": "emoções",
+     "patterns": ["você está bem", "como vai", "tudo em cima", "tudo ok por aí?"],
+     "responses": ["Estou bem", "Vou bem. Obrigada.", "Na verdade um pouco entediada, mas bem."]
+    },
+    {"tag": "notícias",
+     "patterns": ["quais as últimas notícias", "me conte as notícias recentes", "fale as últimas notícias"],
+     "responses": ["Só um momento", "claro, só um segundo"]
+    },
+    {"tag": "computador",
+     "patterns": ["desligar computador", "encerrar o windows", "quem ficar por ultimo apaga  a luz"],
+     "responses": ["Só um momento", "claro, só um segundo", "Encerrando todas as atividades, até mais tarde"]
+    },
+    {"tag": "parabéns",
+     "patterns": ["você está de parabéns", "você está mandando muito bem", "você está aprendendo rápido"],
+     "responses": ["Obrigado, estou me esforçando", "um dos meu objetivos é ser a melhor de todas. então. obrigado", "São seus óleosc"]
     }
 ]
 }
